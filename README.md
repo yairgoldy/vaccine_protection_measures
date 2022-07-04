@@ -1,13 +1,3 @@
----
-title: "README"
-output:
-  html_document:
-    df_print: paged
----
-
-
-
-
 ## Measuring vaccine protection when the population is mostly not immune-naive  
 
 ### Data

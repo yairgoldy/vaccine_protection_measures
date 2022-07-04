@@ -1652,7 +1652,7 @@ group,vaccination period, and date.</p>
 libraries <code>tidyverse</code>, <code>pander</code> and
 <code>broom</code> and then use the following code. Note that cells that
 have less than 5 individuals are omitted from the analysis.</p>
-<pre><code>dat_severe &lt;- read_csv(&quot;SevereDataAug10-26.csv&quot;,
+<pre class="r"><code>dat_severe &lt;- read_csv(&quot;SevereDataAug10-26.csv&quot;,
                        show_col_types = FALSE) %&gt;%  
   filter(N_person   != &quot;&lt;5&quot;) %&gt;%
   mutate(`Vacc Period` = factor(`Vacc Period`,levels = c(&quot;JanB&quot;,&quot;FebA&quot;,&quot;FebB&quot;)), 
@@ -1675,23 +1675,93 @@ epidemiological day (<code>Epi Day</code>), and sector.</p>
 <p>Note that these analyses are different from those used in the
 original paper as they compare between the different cohorts and not
 between the joint cohort of the 2nd dose and booster.</p>
-<pre><code>formula_severe &lt;- as.formula(&quot;Severe ~  Age +
+<pre class="r"><code>formula_severe &lt;- as.formula(&quot;Severe ~  Age +
                          Gender + 
                          `Epi Day` +
                          Sector +
                          Cohort +  
                          offset(log(N_person))&quot;) 
 
-analysis_severe &lt;- glm(formula_severe, family=&quot;poisson&quot;, data=dat_severe)
-</code></pre>
+analysis_severe &lt;- glm(formula_severe, family=&quot;poisson&quot;, data=dat_severe)</code></pre>
 </div>
 <div id="measures-of-protection-conferred-by-the-vaccine" class="section level3">
 <h3>Measures of protection conferred by the vaccine</h3>
 <p>The following table presents adjusted rates for severe illness as
 well as different measures of protection that can be calculated using
 the adjusted rates. 95% confidence intervals appear in parentheses.</p>
-<pre><code>table_severe &lt;- calcualte_measures(dat = dat_severe,analysis = analysis_severe)
+<pre class="r"><code>table_severe &lt;- calcualte_measures(dat = dat_severe,analysis = analysis_severe)
+
 pander::pander(table_severe,keep.line.breaks = TRUE,justify = &#39;center&#39;)</code></pre>
+<table>
+<colgroup>
+<col width="15%" />
+<col width="14%" />
+<col width="13%" />
+<col width="14%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">Cohort</th>
+<th align="center">Adjusted Rate</th>
+<th align="center">Marginal VE</th>
+<th align="center">Relative Risk</th>
+<th align="center">Relative Protection</th>
+<th align="center">Absolute Difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">Booster</td>
+<td align="center">0.4<br />
+[0.3, 0.6]</td>
+<td align="center">Reference</td>
+<td align="center">Reference</td>
+<td align="center">Reference</td>
+<td align="center">Reference</td>
+</tr>
+<tr class="even">
+<td align="center">2nd Dose: JanB</td>
+<td align="center">8.7<br />
+[7.5, 11]</td>
+<td align="center">95.1%<br />
+[93%, 97%]</td>
+<td align="center">0.049<br />
+[0.03, 0.07]</td>
+<td align="center">20.6<br />
+[13, 31]</td>
+<td align="center">8.3<br />
+[6.9, 10.6]</td>
+</tr>
+<tr class="odd">
+<td align="center">2nd Dose: FebA</td>
+<td align="center">7<br />
+[6, 8.8]</td>
+<td align="center">94%<br />
+[91%, 96%]</td>
+<td align="center">0.06<br />
+[0.04, 0.09]</td>
+<td align="center">16.6<br />
+[11, 25]</td>
+<td align="center">6.6<br />
+[5.5, 8.3]</td>
+</tr>
+<tr class="even">
+<td align="center">2nd Dose: FebB</td>
+<td align="center">5.1<br />
+[3.6, 7.7]</td>
+<td align="center">91.8%<br />
+[86%, 95%]</td>
+<td align="center">0.082<br />
+[0.05, 0.14]</td>
+<td align="center">12.2<br />
+[7, 21]</td>
+<td align="center">4.7<br />
+[3.2, 7.3]</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
