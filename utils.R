@@ -23,7 +23,7 @@ calcualte_measures <- function(dat,analysis,calculate_CI = T){
   
   df <- df %>% 
     select(Cohort, `Adjusted Rate` = AR, `Marginal VE`, 
-           `Relative Risk`,`Relative Protection`,`Absolute Difference`) %>% 
+           `Risk Rate Ratio`,`Protection Rate Ratio`,`Absolute Difference`) %>% 
     mutate(across( `Marginal VE`:`Absolute Difference`,  function(x){x[1] <- "Reference"; return(x)}))
   
   return(df)
@@ -40,23 +40,23 @@ calc_relative_measures <- function(df){
       `Marginal VE` = paste0(est,"% \\\n[",lower,"%, ",upper,"%]")
     ) 
   
-  #Relative Risk
+  #Risk Rate Ratio
   df <- df %>% 
     mutate(
       est =  round( exp(-Coef)*1,3),
       lower = round( exp(-Coef-1.96*std.error)*1,2),
       upper = round( exp(-Coef+1.96*std.error)*1,2),
-      `Relative Risk` = paste0(est,"\\\n[",lower,", ",upper,"]")
+      `Risk Rate Ratio` = paste0(est,"\\\n[",lower,", ",upper,"]")
     ) %>% 
     select(- est,-lower,-upper)
   
-  #Relative Protection
+  #Protection Rate Ratio
   df <- df %>% 
     mutate(
       est =  round( exp(Coef),1),
       lower = round( exp(Coef-1.96*std.error),0),
       upper = round( exp(Coef+1.96*std.error),0),
-      `Relative Protection` = paste0(est,"\\\n[",lower,", ",upper,"]")
+      `Protection Rate Ratio` = paste0(est,"\\\n[",lower,", ",upper,"]")
     ) %>% 
     select(- est,-lower,-upper)
   
