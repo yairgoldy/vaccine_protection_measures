@@ -1633,31 +1633,37 @@ pre code {
 </div>
 
 
-<div id="measuring-vaccine-protection-when-the-population-is-mostly-not-immune-naive" class="section level2">
-<h2>Measuring vaccine protection when the population is mostly not
-immune-naive</h2>
+<div id="data-and-code-for-the-example-analysis-in-the-paper-measuring-vaccine-protection-when-the-population-is-mostly-not-immune-naive" class="section level2">
+<h2>Data and code for the example analysis in the paper “Measuring
+vaccine protection when the population is mostly not immune-naive”</h2>
 <div id="data" class="section level3">
 <h3>Data</h3>
-<p>The data are taken from the publicly-available data of the paper <a href="https://www.nejm.org/doi/full/10.1056/nejmoa2114255">“Protection
-of BNT162b2 Vaccine Booster against Covid-19 in Israel”</a>. The data
-are given as a table of the number of risk days and number of severe
-illness during the period August 10 to 26, 2021, for individuals who are
-Israeli residents, ages 60 and above, who receive at least two BNT162b2
-doses. The data are grouped according to gender, sector, age
-group,vaccination period, and date.</p>
+<p>The example discussed in the Supplementary Appendix is based on
+publicly-available data regarding the booster dose protection that
+accompanied the paper <a href="https://www.nejm.org/doi/full/10.1056/nejmoa2114255">“Protection
+of BNT162b2 Vaccine Booster against Covid-19 in Israel”</a>.</p>
+<p>The data are given as a table which includes the number of risk days
+and the number of severe illness cases during the period August 10 to
+26, 2021, for individuals who are Israeli residents, ages 60 and above,
+who received at least two BNT162b2 doses. The data are grouped according
+to gender, sector, age group, vaccination period, and date.</p>
 </div>
 <div id="reading-the-data" class="section level3">
 <h3>Reading the Data</h3>
 <p>To read the data into the R Statistical Software, first load the
 libraries <code>tidyverse</code>, <code>pander</code> and
 <code>broom</code> and then use the following code. Note that cells that
-have less than 5 individuals are omitted from the analysis.</p>
+have fewer than 5 individuals are omitted from the analysis.</p>
 <pre class="r"><code>dat_severe &lt;- read_csv(&quot;SevereDataAug10-26.csv&quot;,
                        show_col_types = FALSE) %&gt;%  
   filter(N_person   != &quot;&lt;5&quot;) %&gt;%
   mutate(`Vacc Period` = factor(`Vacc Period`,levels = c(&quot;JanB&quot;,&quot;FebA&quot;,&quot;FebB&quot;)), 
-         Cohort = if_else(Cohort==&quot;12+&quot;,&quot;Booster&quot;,paste(&quot;2nd Dose:&quot;,`Vacc Period`)),
-         Cohort = factor(Cohort,levels = c(&quot;Booster&quot;, &quot;2nd Dose: JanB&quot;, &quot;2nd Dose: FebA&quot;, &quot;2nd Dose: FebB&quot;)),
+         Cohort = case_when(
+           Cohort==&quot;12+&quot; ~ &quot;Booster&quot;,
+           `Vacc Period`==&quot;JanB&quot; ~ &quot;2-dose 6 months&quot;,
+           `Vacc Period`==&quot;FebA&quot; ~ &quot;2-dose 5.5 months&quot;,
+           `Vacc Period`==&quot;FebB&quot; ~ &quot;2-dose 5 months&quot;),
+         Cohort = factor(Cohort,levels = c(&quot;Booster&quot;, &quot;2-dose 6 months&quot;, &quot;2-dose 5.5 months&quot;, &quot;2-dose 5 months&quot;)),
          `Epi Day` = factor(`Epi Day`),
          Sector = factor(Sector, levels = c(&quot;General Jewish&quot;, &quot;Arab&quot;,&quot;ultra-Orthodox Jews&quot;)),
          N_person = as.numeric(N_person),
@@ -1665,16 +1671,23 @@ have less than 5 individuals are omitted from the analysis.</p>
 </div>
 <div id="analysis" class="section level3">
 <h3>Analysis</h3>
-<p>The analyses compare four different cohorts that were eligible for
-the booster, all 60 years and above: 1. doubly-vaccinated by the second
-part of January (JanB), 1. doubly-vaccinated by the first part of
-February (FebA), 1. doubly-vaccinated by the second part of February
-(FebB), 1. booster dose The analyses for both confirmed infections and
-severe illness use Poisson regression and adjust for age group, gender,
-epidemiological day (<code>Epi Day</code>), and sector.</p>
-<p>Note that these analyses are different from those used in the
-original paper as they compare between the different cohorts and not
-between the joint cohort of the 2nd dose and booster.</p>
+<p>The analyses compare four different cohorts of individuals that were
+eligible for the booster, all 60 years and above:</p>
+<ol style="list-style-type: decimal">
+<li>doubly-vaccinated 6 months (vaccinated by the second part of
+January), denoted “2-dose 6 months”,</li>
+<li>doubly-vaccinated 5.5 months (vaccinated at the first part of
+February), denoted “2-dose 5.5 months,</li>
+<li>doubly-vaccinated 5 months (vaccinated at the second part of
+February), denoted “2-dose 5 months,</li>
+<li>booster dose, denoted “Booster”</li>
+</ol>
+<p>The analysis for severe illness uses Poisson regression and adjusts
+for age group, gender, epidemiological day (<code>Epi Day</code>), and
+sector.</p>
+<p>Note that this analysis is different from that used in the original
+paper as it compares between the different cohorts and not between the
+joint cohort of the 2nd dose and booster.</p>
 <pre class="r"><code>formula_severe &lt;- as.formula(&quot;Severe ~  Age +
                          Gender + 
                          `Epi Day` +
@@ -1694,9 +1707,9 @@ the adjusted rates. 95% confidence intervals appear in parentheses.</p>
 pander::pander(table_severe,keep.line.breaks = TRUE,justify = &#39;center&#39;)</code></pre>
 <table>
 <colgroup>
-<col width="15%" />
+<col width="18%" />
 <col width="14%" />
-<col width="13%" />
+<col width="12%" />
 <col width="14%" />
 <col width="20%" />
 <col width="20%" />
@@ -1722,7 +1735,7 @@ pander::pander(table_severe,keep.line.breaks = TRUE,justify = &#39;center&#39;)<
 <td align="center">Reference</td>
 </tr>
 <tr class="even">
-<td align="center">2nd Dose: JanB</td>
+<td align="center">2-dose 6 months</td>
 <td align="center">8.7<br />
 [7.5, 11]</td>
 <td align="center">95.1%<br />
@@ -1735,7 +1748,7 @@ pander::pander(table_severe,keep.line.breaks = TRUE,justify = &#39;center&#39;)<
 [6.9, 10.6]</td>
 </tr>
 <tr class="odd">
-<td align="center">2nd Dose: FebA</td>
+<td align="center">2-dose 5.5 months</td>
 <td align="center">7<br />
 [6, 8.8]</td>
 <td align="center">94%<br />
@@ -1748,7 +1761,7 @@ pander::pander(table_severe,keep.line.breaks = TRUE,justify = &#39;center&#39;)<
 [5.5, 8.3]</td>
 </tr>
 <tr class="even">
-<td align="center">2nd Dose: FebB</td>
+<td align="center">2-dose 5 months</td>
 <td align="center">5.1<br />
 [3.6, 7.7]</td>
 <td align="center">91.8%<br />
