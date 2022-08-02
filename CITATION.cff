@@ -5,5 +5,6 @@ authors:
     given-names: Yair
     orcid: https://orcid.org/0000-0002-4544-0910
 title: "Measuring vaccine protection when most of the population is not immune-naive: data and code"
+url: https://github.com/yairgoldy/vaccine_protection_measures
 version: 1.0.1
 date-released: 2022-08-01
