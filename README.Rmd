@@ -26,11 +26,12 @@ source("utils.R")
 
 
 
-## Data and code for the example analysis in the paper "Measuring vaccine protection when the population is mostly not immune-naive" 
+## Data and code for the example analysis in the paper "Measuring vaccine protection when the population is mostly vaccinated" 
+
 
 ### Data
 
-The example discussed in the Supplementary Appendix is based on publicly-available data regarding the booster dose protection that accompanied the paper ["Protection of BNT162b2 Vaccine Booster against Covid-19 in Israel"](https://www.nejm.org/doi/full/10.1056/nejmoa2114255). 
+The example discussed in the paper is based on publicly-available data regarding the booster dose protection that accompanied the paper ["Protection of BNT162b2 Vaccine Booster against Covid-19 in Israel"](https://www.nejm.org/doi/full/10.1056/nejmoa2114255). 
 
 The data are given as a table which includes the number of risk days and the number of severe illness cases during the period August 10 to 26, 2021, for individuals who are Israeli residents, ages 60 and above, who received at least two BNT162b2 doses. The data are grouped according to gender, sector, age group, vaccination period, and date.
 
