@@ -22,22 +22,22 @@ calcualte_measures <- function(dat,analysis,calculate_CI = T){
     left_join(relative_measures, by = c("Cohort","Coef", "std.error"))
   
   df <- df %>% 
-    select(Cohort, `Adjusted Rate` = AR, `Marginal VE`, 
+    select(Cohort, `Adjusted Rate` = AR, `Relative VE`, 
            `Risk Rate Ratio`,`Protection Rate Ratio`,`Absolute Difference`) %>% 
-    mutate(across( `Marginal VE`:`Absolute Difference`,  function(x){x[1] <- "Reference"; return(x)}))
+    mutate(across( `Relative VE`:`Absolute Difference`,  function(x){x[1] <- "Reference"; return(x)}))
   
   return(df)
 }
 
 calc_relative_measures <- function(df){
   
-  #Marginal VE
+  #Relative VE
   df <- df %>% 
     mutate(
       est =  round( (1-exp(-Coef))*100,1),
       lower = round( (1-exp(-Coef+1.96*std.error))*100,0),
       upper = round( (1-exp(-Coef-1.96*std.error))*100,0),
-      `Marginal VE` = paste0(est,"% \\\n[",lower,"%, ",upper,"%]")
+      `Relative VE` = paste0(est,"% \\\n[",lower,"%, ",upper,"%]")
     ) 
   
   #Risk Rate Ratio
