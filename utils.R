@@ -20,11 +20,18 @@ calcualte_measures <- function(dat,analysis,calculate_CI = T){
   df <- df %>% 
     left_join(absolute_measures, by = "Cohort") %>% 
     left_join(relative_measures, by = c("Cohort","Coef", "std.error"))
-  
+  # 
+  # df <- df %>% 
+  #   select(Cohort, `Adjusted Number of Cases` = AR, `Relative VE`, 
+  #          `Risk Ratio`,`Protection Risk Ratio`,`Absolute Difference`) %>% 
+  #   mutate(across( `Relative VE`:`Absolute Difference`,  function(x){x[1] <- "Reference"; return(x)}))
+  # 
   df <- df %>% 
-    select(Cohort, `Adjusted Rate` = AR, `Relative VE`, 
-           `Risk Rate Ratio`,`Protection Rate Ratio`,`Absolute Difference`) %>% 
-    mutate(across( `Relative VE`:`Absolute Difference`,  function(x){x[1] <- "Reference"; return(x)}))
+    select(Cohort, `Adjusted Number of Cases` = AR, `Adjusted Difference`,
+           `Risk Ratio`,`Protection Risk Ratio`,`Relative VE` 
+           ) %>% 
+    mutate(across( `Relative VE`:`Adjusted Difference`,  function(x){x[1] <- "Reference"; return(x)}))
+  
   
   return(df)
 }
@@ -40,23 +47,23 @@ calc_relative_measures <- function(df){
       `Relative VE` = paste0(est,"% \\\n[",lower,"%, ",upper,"%]")
     ) 
   
-  #Risk Rate Ratio
+  #Risk Ratio
   df <- df %>% 
     mutate(
       est =  round( exp(-Coef)*1,3),
       lower = round( exp(-Coef-1.96*std.error)*1,2),
       upper = round( exp(-Coef+1.96*std.error)*1,2),
-      `Risk Rate Ratio` = paste0(est,"\\\n[",lower,", ",upper,"]")
+      `Risk Ratio` = paste0(est,"\\\n[",lower,", ",upper,"]")
     ) %>% 
     select(- est,-lower,-upper)
   
-  #Protection Rate Ratio
+  #Protection Risk Ratio
   df <- df %>% 
     mutate(
       est =  round( exp(Coef),1),
       lower = round( exp(Coef-1.96*std.error),0),
       upper = round( exp(Coef+1.96*std.error),0),
-      `Protection Rate Ratio` = paste0(est,"\\\n[",lower,", ",upper,"]")
+      `Protection Risk Ratio` = paste0(est,"\\\n[",lower,", ",upper,"]")
     ) %>% 
     select(- est,-lower,-upper)
   
@@ -78,7 +85,8 @@ calc_absolute_measures <- function(dat,analysis,B =1000,calculate_CI = T){
   est <- adjusted_rates(dat, analysis, cohorts, index=0 ) %>% 
     mutate(
       Cohort = cohorts,
-      `Absolute Difference` = round(AR - AR[1],1)
+      # `Absolute Difference` = round(AR - AR[1],1)
+      `Adjusted Difference` = round(AR - AR[1],1)
     )
   
   if(calculate_CI){
@@ -87,7 +95,7 @@ calc_absolute_measures <- function(dat,analysis,B =1000,calculate_CI = T){
       unnest(cols = c(res))  %>% 
       group_by(index) %>%
       mutate(
-        `Absolute Difference` = AR - AR[1]
+        `Adjusted Difference` = AR - AR[1]
       ) %>% 
       ungroup()
     
@@ -99,8 +107,8 @@ calc_absolute_measures <- function(dat,analysis,B =1000,calculate_CI = T){
       summarise(
         lower = round(quantile(AR,probs=c(0.025),na.rm = TRUE),1),
         upper = round(quantile(AR,probs=c(0.975),na.rm = TRUE),1),
-        lowerD = round(quantile(`Absolute Difference`,probs=c(0.025),na.rm = TRUE),1),
-        upperD = round(quantile(`Absolute Difference`,probs=c(0.975),na.rm = TRUE),1)
+        lowerD = round(quantile(`Adjusted Difference`,probs=c(0.025),na.rm = TRUE),1),
+        upperD = round(quantile(`Adjusted Difference`,probs=c(0.975),na.rm = TRUE),1)
       ) %>% 
       ungroup()
     
@@ -108,9 +116,9 @@ calc_absolute_measures <- function(dat,analysis,B =1000,calculate_CI = T){
       left_join(CI_est,by = c("Cohort")) %>% 
       mutate(
         AR = paste0( round(AR,1),"\\\n[",lower,", ",upper,"]"),
-        `Absolute Difference` = paste0( round(`Absolute Difference`,1),"\\\n[",lowerD,", ",upperD,"]")
+        `Adjusted Difference` = paste0( round(`Adjusted Difference`,1),"\\\n[",lowerD,", ",upperD,"]")
       ) %>% 
-      select(Cohort,AR,`Absolute Difference`)
+      select(Cohort,AR,`Adjusted Difference`)
   }
   return(est)
   
